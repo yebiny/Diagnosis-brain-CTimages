@@ -9,6 +9,7 @@ import glob, pylab, pandas as pd
 import pydicom, numpy as np
 from os import listdir
 from os.path import isfile, join
+import cv2 as cv
 
 import matplotlib.pylab as plt
 import os
@@ -21,15 +22,15 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import Callback, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-from keras.opimizers import Adam
+from keras.optimizers import Adam
 from tqdm import tqdm
 
 #%%
-base_path = 'E:\\Dataset\\rsna-intracranial-hemorrhage-detection'
+base_path = 'C:\\Users\\MG\\Desktop\\AI_term\\brain_ct_data'
 
 train = pd.read_csv(base_path + '\\stage_pre_train.csv')
 
-train.head(10)
+train.head(12)
 
 train.shape   #(4045572, 2)
 
@@ -85,29 +86,34 @@ def get_img_hu(patient_idx):
     dcm = pydicom.dcmread(train_images_path + train_images_list[patient_idx])
     image = dcm.pixel_array
     image = image.astype(np.int16)
-
-    # Set outside-of-scan pixels to 0
-    # The intercept is usually -1024, so air is approximately 0
-    image[image <= -1024] = 0
     
-    # Convert to Hounsfield units (HU)
-    intercept = dcm.RescaleIntercept
-    slope = dcm.RescaleSlope
-    if slope != 1:
-        image = slope * image.astype(np.float64)
-        image = image.astype(np.int16)
+    if np.min(image) < -1024:
+        # Set outside-of-scan pixels to 0
+        # The intercept is usually -1024, so air is approximately 0
+        image[image < -1024] = 0
+    
+        # Convert to Hounsfield units (HU)
+        intercept = dcm.RescaleIntercept
+        slope = dcm.RescaleSlope
+        if slope != 1:
+            image = slope * image.astype(np.float64)
+            image = image.astype(np.int16)
             
-    image += np.int16(intercept)
+        image += np.int16(intercept)
     
     return np.array(image, dtype=np.int16)
 
 
-first_patient_HU = get_img_hu(4)
+one_patient_HU = get_img_hu(4)
 
-plt.hist(first_patient_HU.flatten(), bins=80, color='c')
+plt.hist(one_patient_HU.flatten(), bins=80, color='c')
 plt.xlabel("Hounsfield Units (HU)")
 plt.ylabel("Frequency")
 plt.show()
+
+
+one_patient_gray = cv.normalize(one_patient_HU.astype(np.float64), None, 0, 255, cv.NORM_MINMAX)
+
 
 
 patient_hu = []
@@ -117,7 +123,15 @@ for idx in range(len(train_images_list)):
     tmp = get_img_hu(idx)
     patient_hu.append(tmp)
 
+patient_gray = []
+idx = 0
 
+for idx in range(len(train_images_list)):
+    tmp = cv.normalize(get_img_hu(idx).astype(np.float64), None, 0, 255, cv.NORM_MINMAX)
+    patient_gray.append(tmp)
+
+patient_hu = np.array(patient_hu)
+patient_gray = np.array(patient_gray)
 
 
 #%%
@@ -141,15 +155,62 @@ train.head()
 gbSub = train.groupby('Sub_type').sum()
 gbSub
 
+sns.barplot(y = gbSub.index, x = gbSub.Label, palette = "deep")
+
+fig = plt.figure(figsize = (10, 8))
+sns.countplot(x = "Sub_type", hue = "Label", data = train)
+plt.title("Total Images by Subtype")
+
+#%%
+def window_image(img, window_center,window_width, intercept, slope):
+
+    img = (img * slope +intercept)
+    img_min = window_center - window_width // 2
+    img_max = window_center + window_width // 2
+    img[img < img_min] = img_min
+    img[img > img_max] = img_max
+    return img 
+
+def get_first_of_dicom_field_as_int(x):
+    #get x[0] as in int is x is a 'pydicom.multival.MultiValue', otherwise get int(x)
+    if type(x) == pydicom.multival.MultiValue:
+        return int(x[0])
+    else:
+        return int(x)
+
+def get_windowing(data):
+    dicom_fields = [data[('0028','1050')].value, #window center
+                    data[('0028','1051')].value, #window width
+                    data[('0028','1052')].value, #intercept
+                    data[('0028','1053')].value] #slope
+    return [get_first_of_dicom_field_as_int(x) for x in dicom_fields]
+
+train_images_path
+
+def view_images(images, title = '', aug = None):
+    width = 5
+    height = 2
+    fig, axs = plt.subplots(height, width, figsize=(15,5))
+    
+    for im in range(0, height * width):
+        
+        data = pydicom.read_file(os.path.join(train_images_path, 'ID_' + images[im] + '.dcm'))
+        image = data.pixel_array
+        window_center , window_width, intercept, slope = get_windowing(data)
+        image_windowed = window_image(image, window_center, window_width, intercept, slope)
 
 
+        i = im // width
+        j = im % width
+        axs[i,j].imshow(image_windowed, cmap=plt.cm.bone) 
+        axs[i,j].axis('off')
+        
+        
+    plt.suptitle(title)
+    plt.show()
 
-
-
-
-
-
-
+view_images(train[(train['Sub_type'] == 'any') & (train['Label'] == 1)][:10].PatientID.values, title = 'Images of hemorrhage epidural')
+view_images(train[(train['Sub_type'] == 'any') & (train['Label'] == 0)][:10].PatientID.values, title = 'Images of hemorrhage epidural')
 
 
 
