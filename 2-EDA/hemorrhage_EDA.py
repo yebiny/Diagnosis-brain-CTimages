@@ -26,9 +26,9 @@ from keras.optimizers import Adam
 from tqdm import tqdm
 
 #%%
-base_path = 'C:\\Users\\MG\\Desktop\\AI_term\\brain_ct_data'
+base_path = '../1-Dataset/'
 
-train = pd.read_csv(base_path + '\\stage_pre_train.csv')
+train = pd.read_csv(base_path + '/stage_pre_train.csv')
 
 train.head(12)
 

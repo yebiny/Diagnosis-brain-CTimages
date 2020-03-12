@@ -1,0 +1,7 @@
+*.tif
+*.csv
+*.log
+*.jpg
+*.DS_Store
+__pycache__
+.ipyb_checkpoints
