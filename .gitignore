@@ -4,4 +4,5 @@
 *.jpg
 *.DS_Store
 __pycache__
-.ipyb_checkpoints
+.ipynb_checkpoints
+*.swp
