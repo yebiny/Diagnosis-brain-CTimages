@@ -102,4 +102,11 @@ class EDA_helper():
 		img = self.get_window_imgs()[idx]
 		plt.imshow(img, cmap=plt.cm.bone)
 		plt.show()
+
+	def plot_label(self, figsize=(12,5)):
+		self.csvf['Sub_type'] = self.csvf['ID'].str.split("_", n = 3, expand = True)[2]
+		fig = plt.figure(figsize = figsize)
+		sns.countplot(x = "Sub_type", hue = "Label", data = self.csvf)
+		plt.title("Total Images by Subtype")
+
 				
