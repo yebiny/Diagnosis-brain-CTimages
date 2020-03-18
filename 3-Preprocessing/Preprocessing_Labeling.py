@@ -17,19 +17,18 @@ import seaborn as sns
 import scipy.ndimage
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
+from tensorflow import keras
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.preprocessing.image import img_to_array, array_to_img
 
-from keras.preprocessing import image
-#%%
 #load the dicom image list
-base_path = 'C:\\Users\\MG\\Desktop\\brain_diagnosis'
-train_images_path = img_path + '\\1-Dataset\\stage_pre_train\\'
+train_images_path = '../1-Dataset/stage_pre_train/'
 train_images_list = [s for s in listdir(train_images_path) if isfile(join(train_images_path, s))]
 #test_images_path = base_path + '\\stage_pre_test\\'
 #test_images_list = [s for s in listdir(test_images_path) if isfile(join(test_images_path, s))]
 
-#%%
 #convert to HU images
-save_hu_dir = base_path + '\\3-Preprocessing\\hu'
+save_hu_dir ='./1-transformed_data/'
 idx = 0
 img_tmp = []
 
@@ -61,26 +60,18 @@ def get_windowing(data):
 
 for idx in range(len(train_images_list)):
     data = pydicom.dcmread(train_images_path + train_images_list[idx])
-    image = data.pixel_array
+    pixel_image = data.pixel_array
     window_center , window_width, intercept, slope = get_windowing(data)
-    image_windowed = window_image(image, window_center, window_width, intercept, slope)
-    cv.imwrite(save_hu_dir + '\\' + str(train_images_list[idx]) + '.png', image_windowed)
+    image_windowed = window_image(pixel_image, window_center, window_width, intercept, slope)
+    cv.imwrite(save_hu_dir + str(train_images_list[idx]) + '.png', image_windowed)
     img_tmp.append(image_windowed)
 
-train_x_imgs = np.array(img_tmp)    
-
-plt.hist(train_x_imgs[1].flatten(), bins=80, color='c')
-plt.xlabel("Hounsfield Units (HU)")
-plt.ylabel("Frequency")
-plt.show()
-
-#%%
 #resizing & normalization
 
 imgdir = save_hu_dir
 # if you want file of a specific extension (.png):
 filelist = [f for f in glob.glob(imgdir + "**/*.png", recursive=True)]
-save_res_dir = base_path + '\\3-Preprocessing\\resized(100)'
+save_res_dir = './2-resized_data/'
 if not(os.path.exists(save_res_dir)):
     os.mkdir(save_res_dir)
 
@@ -92,15 +83,15 @@ for file in filelist:
     resize_image = cv.resize(norm_img, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
     name = os.path.basename(file)
     name = os.path.splitext(name)[0]
-    cv.imwrite(save_res_dir + '\\' + name + '.png', resize_image)
+    cv.imwrite(save_res_dir + '/' + name + '.png', resize_image)
     
     print(frame_num)
     frame_num += 1
 
 #%%    
 #load the label data
-label_path = 'C:\\Users\\MG\\Desktop\\brain_diagnosis\\1-Dataset'
-train = pd.read_csv(label_path + '\\stage_pre_train.csv', sep=",", dtype = 'unicode')
+label_path = '../1-Dataset'
+train = pd.read_csv(label_path + '/stage_pre_train.csv', sep=",", dtype = 'unicode')
 train['Sub_type'] = train['ID'].str.split("_", n = 3, expand = True)[2]
 train['PatientID'] = train['ID'].str.split("_", n = 3, expand = True)[1]
 train.head()
@@ -119,8 +110,8 @@ plt.title("Total Images by Subtype")
 #Load imgs according to label
 image2train = []
 for i in tqdm(range(train.shape[0])):
-    img = image.load_img(save_res_dir + '\\ID_' + train['PatientID'][i] + '.dcm.png', target_size = (100, 100))
-    img = image.img_to_array(img)
+    img = image.load_img(save_res_dir + '/ID_' + train['PatientID'][i] + '.dcm.png', target_size = (256, 256))
+    img = img_to_array(img)
     img = img / 255
     image2train.append(img)
 
@@ -135,68 +126,15 @@ y.shape
 #split the dataset to training format
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state = 42, test_size = 0.1)
 
-dataset_path = os.path.join(base_path + '\\1-Dataset\\trainging_data')
-if not(os.path.exists(dataset_path)):
-    os.mkdir(dataset_path)
+save_path = './3-preprocessed_data'
+if not(os.path.exists(save_path)):
+    os.mkdir(save_path)
     
-np.save(dataset_path + '\\X_train.npy', np.array(X_train))
-np.save(dataset_path + '\\y_train.npy', np.array(y_train))
-np.save(dataset_path + '\\X_val.npy', np.array(X_test))
-np.save(dataset_path + '\\y_val.npy', np.array(y_test))
+np.save(save_path + '/x_train.npy', np.array(X_train))
+np.save(save_path + '/y_train.npy', np.array(y_train))
+np.save(save_path + '/x_val.npy', np.array(X_test))
+np.save(save_path + '/y_val.npy', np.array(y_test))
 
 print(X_train[-1].shape, y_train[-1].shape)
 print(X_test[-1].shape, y_test[-1].shape)
-
-
-
-
-
-
-
-
-
-img_base_path = "D:\\H&E_dataset"
-x_img_path = os.path.join(img_base_path + '\\H_V(40)')
-y_img_path = os.path.join(img_base_path + '\\H_V(100)')
-
-x_img = [cv.imread(x_img_path + '\\' + s, cv.IMREAD_GRAYSCALE) for s in os.listdir(x_img_path)]
-y_img = [cv.imread(y_img_path + '\\' + s, cv.IMREAD_GRAYSCALE) for s in os.listdir(y_img_path)]
-
-
-x_data = []
-y_data = []
-
-
-for indx in range(len(x_img)):
-    norm_x = cv.normalize(x_img[indx].astype(np.float64), None, 0, 1, cv.NORM_MINMAX)
-    x_data.append(norm_x)
-    norm_y = cv.normalize(y_img[indx].astype(np.float64), None, 0, 1, cv.NORM_MINMAX)
-    y_data.append(norm_y)
-    print(indx)
-
-x_train, x_val, y_train, y_val = train_test_split(x_data, y_data, test_size=0.1)
-    
-dataset_path = os.path.join(img_base_path, 'dataset')
-if not(os.path.exists(dataset_path)):
-    os.mkdir(dataset_path)
-    
-np.save('D:\\H&E_dataset\\dataset\\' + 'x_train_hv(40)_220025.npy', np.array(x_train))
-np.save('D:\\H&E_dataset\\dataset\\' + 'y_train_hv(100)_220025.npy', np.array(y_train))
-np.save('D:\\H&E_dataset\\dataset\\' + 'x_val_hv(40)_220025.npy', np.array(x_val))
-np.save('D:\\H&E_dataset\\dataset\\' + 'y_val_hv(100)_220025.npy', np.array(y_val))
-
-print(x_train[-1].shape, y_train[-1].shape)
-print(x_val[-1].shape, y_val[-1].shape)
-
-
-
-
-
-
-
-
-
-
-
-
 
