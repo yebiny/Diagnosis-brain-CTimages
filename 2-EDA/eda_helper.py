@@ -24,18 +24,19 @@ class EDA_helper():
 		self.list = [s for s in listdir(self.path) if isfile(join(self.path, s))]
 		self.size = len(self.list)
 		
-		self.csvf = pd.read_csv(data_path + data_dir+'.csv' )
+		self.csvf = pd.read_csv(data_path + 'dcm_label.csv' )
 		self.dcms = [pydicom.dcmread(self.path+self.list[i]) for i in range(len(self.list))]
 		self.imgs = [self.dcms[i].pixel_array for i in range(self.size)]
 		
 		self.slope = [self.dcms[i].RescaleSlope for i in range(self.size)]
 		self.intercept = [self.dcms[i].RescaleIntercept for i in range(self.size)]
+		self.label_type = self.csvf['ID'].str.split("_", n = 3, expand = True)[2][0:6].values
 
-	def show_imgs(self, imgs, figsize=(15,10)):
+	def show_imgs(self, imgs, figsize=(15,6)):
 		fig=plt.figure(figsize=figsize)
 		columns = 5
-		for i in range(columns):
-			fig.add_subplot(1,columns,i+1)
+		for i in range(10):
+			fig.add_subplot(2,columns,i+1)
 			plt.imshow(imgs[i], cmap=plt.cm.bone)
 		plt.show()
 	
@@ -48,7 +49,6 @@ class EDA_helper():
 			# The intercept is usually -1024, so air is approximately 0
 			if np.min(img) < -1024:
 				img[img < -1024] = 0
-			
 			# Convert to Hounsfield units (HU)
 			hu_img = (img * self.slope[i] + self.intercept[i])
 			hu_imgs.append(hu_img)
@@ -87,19 +87,21 @@ class EDA_helper():
 		plt.show()
 	
 	def get_sub_label(self, idx):
-		sub_label = self.csvf['Label'][idx*6:idx*6+6].values	
-		sub_label_list = self.csvf['ID'].str.split("_", n = 3, expand = True)[2][0:6].values
-		return sub_label, sub_label_list
+		idx = idx*6
+		sub_label = self.csvf['Label'][idx:idx+6].values	
+		sub_id = self.csvf['ID'].str.split("_", n = 2, expand = True)[1][idx:idx+6].values
+		return sub_id, sub_label
 
 	def show_sub_label(self, idx):
-		sub_label, sub_label_list = self.get_sub_label(idx)
+		sub_id, sub_label = self.get_sub_label(idx)
 		for i in range(0, 6):
 			if sub_label[i] == 1: 
 				c = 'red'
 			else: 
 				c = 'black'
-			plt.text(520,60+80*i, sub_label_list[i], color=c, size=12)
+			plt.text(520,60+80*i, self.label_type[i], color=c, size=12)
 		img = self.get_window_imgs()[idx]
+		plt.title(sub_id[0])
 		plt.imshow(img, cmap=plt.cm.bone)
 		plt.show()
 
