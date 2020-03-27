@@ -24,7 +24,7 @@ class EDA_helper():
 		self.list = [s for s in listdir(self.path) if isfile(join(self.path, s))]
 		self.size = len(self.list)
 		
-		self.csvf = pd.read_csv(data_path + 'dcm_label.csv' )
+		self.csvf = pd.read_csv(data_path + data_dir+'.csv' )
 		self.dcms = [pydicom.dcmread(self.path+self.list[i]) for i in range(len(self.list))]
 		self.imgs = [self.dcms[i].pixel_array for i in range(self.size)]
 		
