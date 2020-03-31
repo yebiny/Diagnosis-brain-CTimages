@@ -23,8 +23,8 @@ def norm_resize_stream(img_np, id_np, img_size, save_dir):
     return norm_resize_imgs    
 
 def main():
-	data_dir = sys.argv[1]
-	data_type= sys.argv[2]
+	data_dir = str(input("enter the data directory: "))#'dcm_test'#sys.argv[1]
+	data_type= str(input("enter the subtype: "))#'any'#sys.argv[2]
 	print('* Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
 	
 	np_dir = '../2-HU_Window/res_%s/%s/'%(data_dir,data_type)
@@ -66,3 +66,6 @@ def main():
 
 if __name__=='__main__':
 	main()
+
+
+#2번에서 png 파일 저장하면, 그거를 가지고 내가 불러와서 놈하고 리사이즈(128, 128)

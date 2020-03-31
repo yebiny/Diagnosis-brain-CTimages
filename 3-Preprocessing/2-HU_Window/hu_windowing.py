@@ -63,8 +63,8 @@ def hu_window_stream(img_dir, id_np):
     return hu_window_imgs
 
 def main():
-	data_dir = sys.argv[1]
-	data_type= sys.argv[2]
+	data_dir = str(input("enter the data directory: "))#'dcm_test'#sys.argv[1]
+	data_type= str(input("enter the subtype: "))#'any'#sys.argv[2]
 	print('* Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
 	
 	img_dir = '../../1-Dataset/'+data_dir
@@ -101,3 +101,5 @@ def main():
 
 if __name__=='__main__':
 	main()
+
+#np.save를 이미지는 png로 cv이용해서 저장 바꾸기

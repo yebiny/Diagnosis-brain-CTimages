@@ -31,8 +31,8 @@ def adjust_ratio(id_np, label_np):
     return id_out, label_out
 
 def main():
-	data_dir = sys.argv[1]
-	data_type= sys.argv[2]
+	data_dir = 'dcm_test'#sys.argv[1]
+	data_type= 'subdural'#sys.argv[2]
 	print('* Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
 	
 	np_dir = '../../2-EDA/res_%s/%s/'%(data_dir,data_type)
