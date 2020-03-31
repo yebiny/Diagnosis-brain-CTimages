@@ -29,11 +29,16 @@ def make_type_array(data, file_data, type_name):
 #            id_data.append(filter_data[i][2])
 #            label_data.append(filter_data[i][1])
 #        else: continue
-    for i in range(len(file_data)):
-        idx = np.where(filter_data == file_data[i])
-        idx = idx[0][0]
-        id_data.append(filter_data[idx][2])
-        label_data.append(filter_data[idx][1])
+    
+    for i in range(len(filter_data)):
+        if filter_data[i][2] in file_data:
+            #idx = np.where(filter_data == file_data[i])
+            #idx = idx[0][0]
+            id_data.append(filter_data[i][2])
+            label_data.append(filter_data[i][1])
+        else:
+            pass
+        print(i)
     id_data = np.array(id_data, dtype = str)
     label_data = np.array(label_data, dtype = int)
 
@@ -53,7 +58,7 @@ def hist_type_array(label_data, type_name, save_dir):
 		
 
 def main():
-	csv_file = '../1-Dataset/dcm_test.csv'
+	csv_file = '../1-Dataset/stage_2_train.csv'
 	csv_data = pd.read_csv(csv_file,sep = ",", dtype = 'unicode')
 	
 	dcm_dir = str(input("enter the directory of DICOM image : "))#'dcm_test'#sys.argv[1] #or set 'dcm_500'

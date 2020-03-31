@@ -59,7 +59,7 @@ def main():
     print('* Save dir : ', save_dir)
 
     print('\n--- Transform images... Nomalize and Reshape')
-    img_size = 200
+    img_size = 128
     norm_resize_imgs = norm_resize_stream(id_np, load_dir, img_size, save_dir + '/pngs')
     print('\n--- png files are saved in', save_dir + '/pngs')
 
