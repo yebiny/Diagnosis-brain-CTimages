@@ -9,9 +9,9 @@ import os,sys
 import seaborn as sns
 import scipy.ndimage
 
-def show_img(img, figsize=(4,4)):
-    fig=plt.figure(figsize=figsize)
-    plt.imshow(img, cmap=plt.cm.bone)
+def show_img(img, figsize = (4, 4)):
+    fig = plt.figure(figsize = figsize)
+    plt.imshow(img, cmap = plt.cm.bone)
     plt.show()
 
 
@@ -63,41 +63,53 @@ def hu_window_stream(img_dir, id_np):
     return hu_window_imgs
 
 def main():
-	data_dir = sys.argv[1]
-	data_type= sys.argv[2]
-	print('* Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
+    data_dir = str(input("enter the data directory: "))#'dcm_test'#sys.argv[1]
+    data_type= str(input("enter the subtype: "))#'any'#sys.argv[2]
+    print('\n * Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
 	
-	img_dir = '../../1-Dataset/'+data_dir
-	np_dir = '../1-Adjust_ratio/res_%s/%s/'%(data_dir,data_type)
+    img_dir = '../../1-Dataset/' + data_dir
+    np_dir = '../1-Adjust_ratio/res_%s/%s/'%(data_dir,data_type)
 	
-	if not os.path.exists(np_dir):
-		print("!Error! There is not %s  Please make npy dataset at 2-EDA first."%(np_dir))
-		sys.exit()
+    if not os.path.exists(np_dir):
+        print("!Error! There is not %s  Please make npy dataset at 2-EDA first."%(np_dir))
+        sys.exit()
 	
-	print( '--- Loading numpy data from ', np_dir )
-	id_np = np.load(np_dir+'/id_data.npy')
-	label_np = np.load(np_dir+'/label_data.npy')
+    print( '--- Loading numpy data from ', np_dir )
+    id_np = np.load(np_dir + '/id_data.npy')
+    label_np = np.load(np_dir + '/label_data.npy')
 	
-	print('--- Transform images... H.U and Windowing')
-	hu_window_imgs = hu_window_stream(img_dir, id_np)
+    print('\n--- Transform images... H.U and Windowing')
+    hu_window_imgs = hu_window_stream(img_dir, id_np)
 
-	print('* Output image dataset shape is :', np.shape(hu_window_imgs))
+    print('* Output image dataset shape is :', np.shape(hu_window_imgs))
 
-	save_dir = 'res_'+data_dir
-	if not os.path.exists(save_dir):
-		os.makedirs(save_dir)
+    save_dir = 'res_' + data_dir
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 	
-	save_dir = save_dir+'/'+data_type
-	if not os.path.exists(save_dir):
-		os.makedirs(save_dir)
-	    
-	print( '--- Saving numpy data...')
-	print( '* save dir : ', save_dir)
-
-	img_np = np.array(hu_window_imgs)
-	np.save(save_dir+'/img_data',img_np)
-	np.save(save_dir+'/id_data', id_np)
-	np.save(save_dir+'/label_data', label_np)
+    save_dir = save_dir + '/' + data_type
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+        
+    imgdata_dir = save_dir + '/img_data'
+    if not os.path.exists(imgdata_dir):
+        os.makedirs(imgdata_dir)
+	
+    print( '\n--- Saving numpy data...')
+    print( '* save dir : ', save_dir)
+    print( '* id.png dir : ', imgdata_dir)
+    
+    img_np = np.array(hu_window_imgs)
+    
+    for i in range(len(img_np)):
+        cv.imwrite(imgdata_dir + '/' + str(id_np[i]) + '.png', img_np[i])
+        i += 1
+        
+    #np.save(save_dir+'/img_data',img_np)
+    np.save(save_dir + '/id_data', id_np)
+    np.save(save_dir + '/label_data', label_np)
 
 if __name__=='__main__':
 	main()
+
+#np.save를 이미지는 png로 cv이용해서 저장 바꾸기
