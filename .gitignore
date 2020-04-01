@@ -9,3 +9,4 @@ __pycache__
 *.swp
 *.npy
 res_*
+1-Dataset/dcm_*
