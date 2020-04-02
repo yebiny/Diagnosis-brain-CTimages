@@ -9,63 +9,62 @@ import os,sys
 import seaborn as sns
 import scipy.ndimage
 
-def norm_resize_stream(img_np, id_np, img_size, save_dir):
-    
-    norm_resize_imgs=[]
-    for i in range(len(img_np)):
-        img = img_np[i]
+sys.path.append('../../')
+from  help_printing import *
+
+def norm_resize_stream(id_np, load_dir, img_size, save_dir):
+    filelist = [f for f in glob.glob(load_dir + '/*.png', recursive = True)]
+    norm_resize_imgs = []
+    i = 0
+    for file in filelist:
+    #for i in range(len(img_np)):
+        #img = img_np[i]
+        img = cv.imread(file, cv.IMREAD_GRAYSCALE)
         img = cv.normalize(img.astype(np.uint8), None, 0, 255, cv.NORM_MINMAX)
-        img = cv.resize(img, dsize=(img_size, img_size), interpolation=cv.INTER_LINEAR)
-        cv.imwrite(save_dir+'/pngs/'+id_np[i]+'.png', img)
+        img = cv.resize(img, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
+        cv.imwrite(save_dir + '/' + str(id_np[i]) + '.png', img)
         norm_resize_imgs.append(img)
-        
-    print('* Final image data shape: ', np.shape(norm_resize_imgs))    
+        i=i+1
     return norm_resize_imgs    
 
 def main():
-	data_dir = str(input("enter the data directory: "))#'dcm_test'#sys.argv[1]
-	data_type= str(input("enter the subtype: "))#'any'#sys.argv[2]
-	print('* Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
+	img_size = 200
+	
+	data_dir = str(input("- Enter the directory containing DICOM images : "))
+	print(print_types)
+	data_type = input("- Enter the subtype number : ")
+	data_type = types[int(data_type)-1]
 	
 	np_dir = '../2-HU_Window/res_%s/%s/'%(data_dir,data_type)
+	if_not_exit(np_dir)
 	
-	if not os.path.exists(np_dir):
-		print("!Error! There is not %s  Please make pre-dataset."%(np_dir))
-		sys.exit()
-
-	print( '--- Loading numpy data from ', np_dir )
-	id_np = np.load(np_dir+'/id_data.npy')
-	img_np = np.load(np_dir+'/img_data.npy')
-	label_np = np.load(np_dir+'/label_data.npy')
-	print('* length of id.npy :', len(id_np))
-	print('* length of img.npy :', len(img_np))
-	print('* length of label.npy :', len(label_np))	
+	print('\n* Dataset from  [ %s ]'%(np_dir))
+	
+	print( '---> Loading numpy data' )
+	id_np = np.load(np_dir + '/id_data.npy')
+	label_np = np.load(np_dir + '/label_data.npy')
+	
+	img_dir = np_dir + '/pngs'
 	
 	save_dir = 'res_'+data_dir
-	if not os.path.exists(save_dir):
-		os.makedirs(save_dir)
+	if_not_make(save_dir)
 
-	save_dir = save_dir+'/'+data_type
-	if not os.path.exists(save_dir):
-		os.makedirs(save_dir)
-		os.makedirs(save_dir+'/pngs/')
-    
-	print('* Save dir : ', save_dir)
+	save_dir = save_dir + '/' + data_type
+	if_not_make(save_dir)	
 
-	print('--- Transform images... Nomalize and Reshape')
-	img_size = 128
-	norm_resize_imgs = norm_resize_stream(img_np, id_np, img_size, save_dir)
-	print('--- png files are saved in', save_dir+'/pngs')
-
-	print( '--- Saving numpy data... (img, id, label)')
+	save_img_dir = save_dir+'/pngs'	
+	if_not_make(save_img_dir)
+	
+	print('---> Transform images... Nomalize and Reshape')
+	norm_resize_imgs = norm_resize_stream(id_np, img_dir, img_size, save_img_dir)
+	print(' reshape size : ', img_size)
+	print('---> Saving numpy data.')
 	re_img_np = np.array(norm_resize_imgs)
-	np.save(save_dir+'/img_data',re_img_np)
-	np.save(save_dir+'/id_data', id_np)
-	np.save(save_dir+'/label_data', label_np)
-
-
+	
+	np.save(save_dir + '/id_data', id_np)
+	np.save(save_dir + '/label_data', label_np)
+	np.save(save_dir + '/img_data', re_img_np)
+	
+	summary(save_dir, [id_np, label_np, re_img_np])
 if __name__=='__main__':
 	main()
-
-
-#2번에서 png 파일 저장하면, 그거를 가지고 내가 불러와서 놈하고 리사이즈(128, 128)
