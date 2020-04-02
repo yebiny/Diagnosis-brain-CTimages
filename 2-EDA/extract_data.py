@@ -53,8 +53,9 @@ def hist_type_array(label_data, type_name, save_dir):
 		
 
 def main():
-	csv_file = '../1-Dataset/stage_2_train.csv'
-#csv_file = '../1-Dataset/dcm_test.csv'
+#csv_file = '../1-Dataset/stage_2_train.csv'
+	csv_file = '../1-Dataset/dcm_test.csv'
+	if_not_exit(csv_file)
 	csv_data = pd.read_csv(csv_file,sep = ",", dtype = 'unicode')
 	
 	dcm_dir = str(input("- Enter the directory containig DICOM images : "))
@@ -66,7 +67,7 @@ def main():
 	if_not_make(save_dir)
 	
 	print(print_types)	
-	type_name = input("- Enter the subtype :")
+	type_name = input("- Enter the subtype number:")
 	type_name = types[int(type_name)-1]
 
 	save_dir = save_dir + '/' + type_name
