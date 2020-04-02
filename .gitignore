@@ -8,3 +8,5 @@ __pycache__
 .ipynb_checkpoints
 *.swp
 *.npy
+res_*
+1-Dataset/dcm_*

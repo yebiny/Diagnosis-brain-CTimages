@@ -9,6 +9,9 @@ import os,sys
 import seaborn as sns
 import scipy.ndimage
 
+sys.path.append('../../')
+from  help_printing import *
+
 def show_img(img, figsize = (4, 4)):
     fig = plt.figure(figsize = figsize)
     plt.imshow(img, cmap = plt.cm.bone)
@@ -44,7 +47,6 @@ def get_window_img(hu_img, center, width):
     return window_img
 
 def hu_window_stream(img_dir, id_np):
-    print('* # of target images: %s'%(len(id_np)))
     hu_window_imgs = []
     for i in range(len(id_np)):
         dcm = pydicom.dcmread('%s/ID_%s.dcm'%(img_dir, id_np[i]))
@@ -63,53 +65,44 @@ def hu_window_stream(img_dir, id_np):
     return hu_window_imgs
 
 def main():
-    data_dir = str(input("enter the data directory: "))#'dcm_test'#sys.argv[1]
-    data_type= str(input("enter the subtype: "))#'any'#sys.argv[2]
-    print('\n * Dataset from [ %s ] and desease type is [ %s ]'%(data_dir, data_type))
+	data_dir = str(input("- Enter the directory containig DICOM images : "))
+	print(print_types)
+	data_type = input("- Enter the subtype number : ")
+	data_type = types[int(data_type)-1]
 	
-    img_dir = '../../1-Dataset/' + data_dir
-    np_dir = '../1-Adjust_ratio/res_%s/%s/'%(data_dir,data_type)
+	img_dir = '../../1-Dataset/' + data_dir
+	if_not_exit(img_dir)
+	np_dir = '../1-Adjust_ratio/res_%s/%s/'%(data_dir,data_type)
+	if_not_exit(np_dir)
 	
-    if not os.path.exists(np_dir):
-        print("!Error! There is not %s  Please make npy dataset at 2-EDA first."%(np_dir))
-        sys.exit()
+	print('\n* Dataset: [ %s ] and [ %s ]'%(np_dir, img_dir))	
 	
-    print( '--- Loading numpy data from ', np_dir )
-    id_np = np.load(np_dir + '/id_data.npy')
-    label_np = np.load(np_dir + '/label_data.npy')
+	print('---> Loading numpy data ')
+	id_np = np.load(np_dir + '/id_data.npy')
+	label_np = np.load(np_dir + '/label_data.npy')
 	
-    print('\n--- Transform images... H.U and Windowing')
-    hu_window_imgs = hu_window_stream(img_dir, id_np)
+	print('---> Transform images... H.U and Windowing')
+	hu_window_imgs = hu_window_stream(img_dir, id_np)
+	
+	save_dir = 'res_' + data_dir
+	if_not_make(save_dir)
+	
+	save_dir = save_dir + '/' + data_type
+	if_not_make(save_dir)
+	
+	save_img_dir = save_dir + '/pngs'
+	if_not_make(save_img_dir)
 
-    print('* Output image dataset shape is :', np.shape(hu_window_imgs))
-
-    save_dir = 'res_' + data_dir
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-	
-    save_dir = save_dir + '/' + data_type
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-        
-    imgdata_dir = save_dir + '/img_data'
-    if not os.path.exists(imgdata_dir):
-        os.makedirs(imgdata_dir)
-	
-    print( '\n--- Saving numpy data...')
-    print( '* save dir : ', save_dir)
-    print( '* id.png dir : ', imgdata_dir)
+	print( '---> Saving png files.')
+	img_np = np.array(hu_window_imgs)
+	for i in range(len(img_np)):
+		cv.imwrite(save_img_dir + '/' + str(id_np[i]) + '.png', img_np[i])
     
-    img_np = np.array(hu_window_imgs)
-    
-    for i in range(len(img_np)):
-        cv.imwrite(imgdata_dir + '/' + str(id_np[i]) + '.png', img_np[i])
-        i += 1
-        
-    #np.save(save_dir+'/img_data',img_np)
-    np.save(save_dir + '/id_data', id_np)
-    np.save(save_dir + '/label_data', label_np)
-
+	#np.save(save_dir+'/img_data',img_np)
+	print( '---> Saving numpy data.')
+	np.save(save_dir + '/id_data', id_np)
+	np.save(save_dir + '/label_data', label_np)
+	
+	summary(save_dir, [id_np, label_np, img_np])
 if __name__=='__main__':
 	main()
-
-#np.save를 이미지는 png로 cv이용해서 저장 바꾸기
