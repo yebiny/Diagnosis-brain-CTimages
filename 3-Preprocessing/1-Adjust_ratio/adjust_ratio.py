@@ -51,7 +51,7 @@ def main():
         print("!Error! There is not %s  Please make npy dataset at 2-EDA first."%(np_dir))
         sys.exit()
 	
-    print( '\n--- SLoading numpy data...')
+    print( '\n--- Loading numpy data...')
     id_np = np.load(np_dir + '/id_data.npy')
     label_np = np.load(np_dir + '/label_data.npy')
 	
