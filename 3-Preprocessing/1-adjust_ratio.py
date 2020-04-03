@@ -3,7 +3,7 @@ import random
 import os, sys
 import matplotlib.pyplot as plt
 
-sys.path.append('../../')
+sys.path.append('../')
 from  help_printing import *
 
 def adjust_ratio(id_np, label_np):
@@ -49,7 +49,7 @@ def main():
 	data_type = input("- Enter the subtype number : ")
 	data_type = types[int(data_type)-1]
 			
-	np_dir = '../../2-EDA/res_%s/%s/'%(data_dir,data_type)
+	np_dir = '../2-EDA/res_%s/%s/'%(data_dir,data_type)
 	if_not_exit(np_dir)
 
 	print('\n* Dataset: [ %s ]'%(np_dir))
@@ -61,8 +61,9 @@ def main():
 		
 	save_dir = 'res_' + data_dir
 	if_not_make(save_dir)
-
 	save_dir = save_dir + '/' + data_type
+	if_not_make(save_dir)
+	save_dir = save_dir + '/3-1'
 	if_not_make(save_dir)
 
 	print('---> Saving numpy data.')

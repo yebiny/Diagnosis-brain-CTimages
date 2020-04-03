@@ -9,7 +9,7 @@ import os,sys
 import seaborn as sns
 import scipy.ndimage
 
-sys.path.append('../../')
+sys.path.append('../')
 from  help_printing import *
 
 def show_img(img, figsize = (4, 4)):
@@ -70,9 +70,9 @@ def main():
 	data_type = input("- Enter the subtype number : ")
 	data_type = types[int(data_type)-1]
 	
-	img_dir = '../../1-Dataset/' + data_dir
+	img_dir = '../1-Dataset/' + data_dir
 	if_not_exit(img_dir)
-	np_dir = '../1-Adjust_ratio/res_%s/%s/'%(data_dir,data_type)
+	np_dir = './res_%s/%s/3-1'%(data_dir,data_type)
 	if_not_exit(np_dir)
 	
 	print('\n* Dataset: [ %s ] and [ %s ]'%(np_dir, img_dir))	
@@ -86,10 +86,10 @@ def main():
 	
 	save_dir = 'res_' + data_dir
 	if_not_make(save_dir)
-	
 	save_dir = save_dir + '/' + data_type
 	if_not_make(save_dir)
-	
+	save_dir = save_dir + '/3-2'
+	if_not_make(save_dir)
 	save_img_dir = save_dir + '/pngs'
 	if_not_make(save_img_dir)
 

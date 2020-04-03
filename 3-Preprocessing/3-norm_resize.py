@@ -9,7 +9,7 @@ import os,sys
 import seaborn as sns
 import scipy.ndimage
 
-sys.path.append('../../')
+sys.path.append('../')
 from  help_printing import *
 
 def norm_resize_stream(id_np, load_dir, img_size, save_dir):
@@ -35,7 +35,7 @@ def main():
 	data_type = input("- Enter the subtype number : ")
 	data_type = types[int(data_type)-1]
 	
-	np_dir = '../2-HU_Window/res_%s/%s/'%(data_dir,data_type)
+	np_dir = './res_%s/%s/3-2'%(data_dir,data_type)
 	if_not_exit(np_dir)
 	
 	print('\n* Dataset from  [ %s ]'%(np_dir))
@@ -48,8 +48,9 @@ def main():
 	
 	save_dir = 'res_'+data_dir
 	if_not_make(save_dir)
-
 	save_dir = save_dir + '/' + data_type
+	if_not_make(save_dir)	
+	save_dir = save_dir + '/3-3'
 	if_not_make(save_dir)	
 
 	save_img_dir = save_dir+'/pngs'	
