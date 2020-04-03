@@ -53,41 +53,41 @@ def hist_type_array(label_data, type_name, save_dir):
 		
 
 def main():
-#csv_file = '../1-Dataset/stage_2_train.csv'
-	csv_file = '../1-Dataset/dcm_test.csv'
-	if_not_exit(csv_file)
-	csv_data = pd.read_csv(csv_file,sep = ",", dtype = 'unicode')
+    csv_file = '../1-Dataset/stage_2_train.csv'
+    #csv_file = '../1-Dataset/dcm_test.csv'
+    if_not_exit(csv_file)
+    csv_data = pd.read_csv(csv_file,sep = ",", dtype = 'unicode')
 	
-	dcm_dir = str(input("- Enter the directory containig DICOM images : "))
-	dcm_path = '../1-Dataset/%s/'%(dcm_dir)
-	if_not_exit(dcm_path)
+    dcm_dir = str(input("- Enter the directory containig DICOM images : "))
+    dcm_path = '../1-Dataset/%s/'%(dcm_dir)
+    if_not_exit(dcm_path)
 
-	dcm_data = file_to_data(dcm_path)
-	save_dir = 'res_' + dcm_dir
-	if_not_make(save_dir)
+    dcm_data = file_to_data(dcm_path)
+    save_dir = 'res_' + dcm_dir
+    if_not_make(save_dir)
 	
-	print(print_types)	
-	type_name = input("- Enter the subtype number:")
-	type_name = types[int(type_name)-1]
+    print(print_types)	
+    type_name = input("- Enter the subtype number:")
+    type_name = types[int(type_name)-1]
 
-	save_dir = save_dir + '/' + type_name
-	if_not_make(save_dir)
+    save_dir = save_dir + '/' + type_name
+    if_not_make(save_dir)
 
-	print('\n* Dicom dir: [ %s ], Desease type : [ %s ]'%(dcm_dir, type_name))
-	print('---> Finding ID and Label index from [ %s ].'%(csv_file))	
-	id_data, label_data = make_type_array(csv_data, dcm_data, type_name)
-
-	print('---> Saving numpy ID data.')
-	np.save(save_dir + '/id_data', id_data)
-		
-	print('---> Saving numpy Label data.')
-	np.save(save_dir + '/label_data', label_data )
-	
-	print('---> Drawing [ %s ] type ratio histogram.'%(type_name))	
-	hist_type_array(label_data, type_name, save_dir)
-	
-	index, count = np.unique(label_data, return_counts = True)
-	summary(save_dir, [id_data, label_data], count)	
-	
+    print('\n* Dicom dir: [ %s ], Desease type : [ %s ]'%(dcm_dir, type_name))
+    print('---> Finding ID and Label index from [ %s ].'%(csv_file))	
+    id_data, label_data = make_type_array(csv_data, dcm_data, type_name)
+    
+    print('---> Saving numpy ID data.')
+    np.save(save_dir + '/id_data', id_data)
+    	
+    print('---> Saving numpy Label data.')
+    np.save(save_dir + '/label_data', label_data )
+    
+    print('---> Drawing [ %s ] type ratio histogram.'%(type_name))	
+    hist_type_array(label_data, type_name, save_dir)
+    
+    index, count = np.unique(label_data, return_counts = True)
+    summary(save_dir, [id_data, label_data], count)	
+    
 if __name__=='__main__':
 	main()

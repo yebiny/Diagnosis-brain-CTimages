@@ -28,7 +28,7 @@ def norm_resize_stream(id_np, load_dir, img_size, save_dir):
     return norm_resize_imgs    
 
 def main():
-	img_size = 200
+	img_size = 128
 	
 	data_dir = str(input("- Enter the directory containig DICOM images : "))
 	print(print_types)
