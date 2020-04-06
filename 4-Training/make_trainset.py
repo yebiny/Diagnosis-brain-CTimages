@@ -23,7 +23,6 @@ def make_dataset(img_np, label_np, save_dir, split):
 
     return x_train, y_train, x_val, y_val, x_test, y_test
 
-
 def load_dataset(load_dir):
     x_train = np.load(load_dir + 'x_train.npy')
     y_train = np.load(load_dir + 'y_train.npy')
@@ -33,6 +32,8 @@ def load_dataset(load_dir):
     y_test = np.load(load_dir + 'y_test.npy')
 
     return x_train, y_train, x_val, y_val, x_test, y_test
+
+
 
 def main():
 

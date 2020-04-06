@@ -15,7 +15,7 @@ count = len(listdir('./results'))+1
 save_name='run_%i'%(count)
 
 
-# Option
+# Variable
 #####################################################
 data_dir = 'all_subdural'
 data_set = 'dataset_1'
@@ -24,7 +24,7 @@ batch_size=256
 epochs=10
 #####################################################
 
-# Load Dataset
+# Dataset
 save_dir = './results/%s/'%(save_name)
 if_not_make(save_dir)
 load_data= './datasets/%s/%s/'%(data_dir,data_set)
