@@ -26,9 +26,9 @@ from keras.optimizers import Adam
 from tqdm import tqdm
 
 #%%
-base_path = '../1-Dataset/'
+base_path = 'C:\\Users\\MG\\Desktop\\brain_diagnosis-master\\brain_diagnosis-master'
 
-train = pd.read_csv(base_path + '/stage_pre_train.csv')
+train = pd.read_csv(base_path + '\\1-Dataset\\dcm_test.csv')
 
 train.head(12)
 
@@ -41,7 +41,7 @@ train.Label.isnull().sum()   #---------->NaN의 갯수 합
 #%%
 #image example
 
-train_images_path = base_path + '\\stage_pre_train\\'
+train_images_path = base_path + '\\1-Dataset\\dcm_test\\'
 train_images_list = [s for s in listdir(train_images_path) if isfile(join(train_images_path, s))]
 test_images_path = base_path + '\\stage_pre_test\\'
 test_images_list = [s for s in listdir(test_images_path) if isfile(join(test_images_path, s))]
@@ -64,11 +64,13 @@ print('Number of test images:', len(test_images_list))
 
 fig=plt.figure(figsize=(15, 10))
 columns = 5; rows = 1
+img_list = []
 for i in range(1, columns * rows + 1):
     dcm = pydicom.dcmread(train_images_path + train_images_list[i - 1])
     fig.add_subplot(rows, columns, i)
     plt.imshow(dcm.pixel_array, cmap=plt.cm.bone)
     fig.add_subplot
+    img_list.append(dcm.pixel_array)
 
 print(dcm)
 
@@ -76,6 +78,8 @@ im_pixel = dcm.pixel_array
 print(type(im_pixel))
 print(im_pixel.dtype)
 print(im_pixel.shape)
+
+
 
 
 
@@ -112,9 +116,20 @@ plt.ylabel("Frequency")
 plt.show()
 
 
+
+
 one_patient_gray = cv.normalize(one_patient_HU.astype(np.float64), None, 0, 255, cv.NORM_MINMAX)
 
+plt.imshow(one_patient_gray)
+plt.hist(one_patient_gray.flatten(), bins = 80)
 
+clahe = cv.createCLAHE(clipLimit=20.0, tileGridSize=(3,3))
+img = np.uint8(one_patient_gray)
+img2 = clahe.apply(img)
+
+img3 = cv.equalizeHist(img)
+plt.imshow(img3, cmap = plt.cm.bone)
+plt.hist(img.flatten(), bins = 80)
 
 patient_hu = []
 idx = 0
