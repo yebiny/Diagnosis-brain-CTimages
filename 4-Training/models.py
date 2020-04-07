@@ -4,7 +4,15 @@ def get_model(model):
     return model_list[model]
 
 
-##### Make your model here #####
+def your_model(x_shape):
+    x = keras.Input(shape=(x_shape[1],x_shape[2],x_shape[3]))
+    
+    ################################
+    ##### Make your model here #####    
+    ################################
+    
+    return models.Model(inputs=x, outputs=y)
+
 
 def base_model(x_shape):
   
@@ -39,7 +47,8 @@ def base_model(x_shape):
 
 
 model_list={
-'base_model':base_model
+'base_model':base_model,
+'your_model':your_model
 }
 
 

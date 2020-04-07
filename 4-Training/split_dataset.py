@@ -24,6 +24,7 @@ def make_dataset(img_np, label_np, save_dir, split):
     return x_train, y_train, x_val, y_val, x_test, y_test
 
 def load_dataset(load_dir):
+    load_dir='./datasets/%s/'%load_dir
     x_train = np.load(load_dir + 'x_train.npy')
     y_train = np.load(load_dir + 'y_train.npy')
     x_val = np.load(load_dir + 'x_val.npy')
@@ -33,29 +34,42 @@ def load_dataset(load_dir):
 
     return x_train, y_train, x_val, y_val, x_test, y_test
 
-
-
 def main():
 
-    ####### Option #######
-    data_dir = 'all'
-    data_type = 'subdural'
-    split_size = [5,3,2]
-    ######################
+    # Option 
+    data_dir = str(input("- Enter the directory containig DICOM images : "))
+    
+    print(print_types)
+    data_type = input("- Enter the subtype number : ")
+    data_type = types[int(data_type)-1]
+    
+    print("- Enter the ratio. [train : val : test ]")
+    split_size = []
+    size = int(input("* train ratio: "))
+    split_size.append(size)
+    size = int(input("* validation ratio: "))
+    split_size.append(size)
+    size = int(input("* test ratio: "))
+    split_size.append(size)
 
-    save_dir = './datasets/%s_%s/'%(data_dir, data_type)
+    # Set save directory
+    save_name='%s_%s'%(data_dir, data_type)
+    save_dir = './datasets/'
     if_not_make(save_dir)
-    count_dir = len(listdir(save_dir))+1
-    save_dir = save_dir+'dataset_%i'%count_dir
-    if_not_make(save_dir)
+    f_list = [file for file in listdir(save_dir) if file.startswith(save_name)]
+    save_path = save_dir+'%s_%i'%(save_name, len(f_list)+1)
+    if_not_make(save_path)
 
+    # Load processed data
     data_dir = '../3-Preprocessing/res_%s/%s/3-3/'%(data_dir, data_type)
     img_np = np.load(data_dir + '/img_data.npy')
     label_np = np.load(data_dir + '/label_data.npy')
-    print('* Save in [ %s ] '%save_dir)
+    print('- Save in [ %s ] '%save_path)
+   
+    # Split data
+    x_train, y_train, x_val, y_val, x_test, y_test = make_dataset(img_np, label_np, save_path, split_size)
     
-    x_train, y_train, x_val, y_val, x_test, y_test = make_dataset(img_np, label_np, save_dir, split_size)
-    
+    # Save log 
     log = '''
     -- Numpy dataset from [ {d_dir} ][ {d_type} ] --
     * number of dataset : {d_len}
@@ -69,11 +83,12 @@ def main():
                x1=x_train.shape, y1=y_train.shape, 
                x2=x_val.shape, y2=y_val.shape, 
                x3=x_test.shape, y3=y_test.shape)
-    with open(save_dir + '/log.txt', 'a') as log_file:
+    with open(save_path + '/log.txt', 'a') as log_file:
         log_file.write(log)
-    with open(save_dir + '/log.txt', 'w') as log_file:
+    with open(save_path + '/log.txt', 'w') as log_file:
         log_file.write(log)
 
     print(log)
+
 if __name__ == '__main__':
     main()   
