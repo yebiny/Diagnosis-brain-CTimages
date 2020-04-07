@@ -11,24 +11,24 @@ from make_trainset import *
 from models import *
 
 if_not_make('./results')
-count = len(listdir('./results'))+1
-save_name='run_%i'%(count)
-
+count = len(listdir('./results/'))
+print(count)
 
 # Variable
 #####################################################
+save_name='run_%i'%(count)
 data_dir = 'all_subdural'
 data_set = 'dataset_1'
 model_name='base_model'
 batch_size=256
-epochs=10
+epochs=1
 #####################################################
 
 # Dataset
 save_dir = './results/%s/'%(save_name)
 if_not_make(save_dir)
-load_data= './datasets/%s/%s/'%(data_dir,data_set)
-x_train, y_train, x_val, y_val, x_test, y_test = load_dataset(load_data)
+data_dir= './datasets/%s/%s/'%(data_dir,data_set)
+x_train, y_train, x_val, y_val, x_test, y_test = load_dataset(data_dir)
 
 # Model
 if model_name in model_list:
@@ -55,16 +55,9 @@ history = model.fit(
     )
 
 # Save Log
-log= '''
-* data directory = {data_dir}
-* dataset = {data_set}
-* model = {model_name}
-* batch_size = {batch_size}
-* epochs = {epochs}
-'''.format(data_dir=data_dir, data_set=data_set, model_name=model_name, batch_size=batch_size, epochs=epochs)
-with open(save_dir + '/log.txt', 'a') as log_file:
-    log_file.write(log)
-with open(save_dir + '/log.txt', 'w') as log_file:
-    log_file.write(log)
 
-print(log)
+import pandas as pd
+
+data = [save_dir, data_dir, model_name, batch_size, epochs]
+data = pd.DataFrame(data)
+data.to_csv(save_dir+'info.csv' ,header=['data'], index=False)
