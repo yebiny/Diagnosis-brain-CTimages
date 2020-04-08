@@ -10,3 +10,4 @@ __pycache__
 *.npy
 res_*
 1-Dataset/dcm_*
+results

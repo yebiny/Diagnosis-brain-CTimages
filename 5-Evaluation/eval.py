@@ -19,9 +19,9 @@ def main():
     reader = pd.read_csv(target_info)
     
     # Data
-    data_path = '../4-Training/'+str(reader.loc[1,'data'])
-    x_test = np.load(data_path + 'x_test.npy')
-    y_real = np.load(data_path + 'y_test.npy')
+    data_path = '../4-Training/datasets/'+str(reader.loc[1,'data'])
+    x_test = np.load(data_path + '/x_test.npy')
+    y_real = np.load(data_path + '/y_test.npy')
 
     # Model
     model_path=target_path+'/model.hdf5'
