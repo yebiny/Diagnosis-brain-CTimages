@@ -10,34 +10,48 @@ sys.path.append('../')
 from help_printing import *
 
 def file_to_data(data_path):
-    file_data = listdir(data_path)
-    file_data = np.array(file_data)
+    csv_data = listdir(data_path)
+    csv_data = np.array(csv_data)
     
-    for i in range(len(file_data)):
-        file_data[i] = file_data[i].split("_")[1].split(".")[0]
-    return file_data
+    for i in range(len(csv_data)):
+        csv_data[i] = csv_data[i].split("_")[1].split(".")[0]
+    return csv_data
 
-def make_type_array(data, file_data, type_name):
+def make_type_array(data, csv_data, type_name):
     data['subID'] = data['ID'].str.split("_", n = 3, expand = True)[1]
     data['subType'] = data['ID'].str.split("_", n = 3, expand = True)[2]
-    type_filter = data['subType'] == type_name
-    filter_data = np.array(data[type_filter])    
     #print(filter_data.shape, filter_data)
     
     id_data = []
-    label_data = []
     
-    for i in range(len(filter_data)):
-        #if i%10000 == 0: print(i)
-        if filter_data[i][2] in file_data:
-            id_data.append(filter_data[i][2])
-            label_data.append(filter_data[i][1])
-        else:
-            pass
-    id_data = np.array(id_data, dtype = str)
-    label_data = np.array(label_data, dtype = int)
+    if type_name == 'normal':
+        sub_id_list = np.array(data['subID'])
+        # Delete same values 
+        sub_id_list = np.array(list(set(sub_id_list)))
+        
+        for i in range(len(sub_id_list)):
+            this_sub_id = sub_id_list[i]
 
-    return id_data, label_data
+            filtering = data['subID']==this_sub_id
+            this_sub_labels = data[filtering]['Label']
+            zero_count = list(this_sub_labels).count('0')
+            if zero_count == 6:
+                id_data.append(this_sub_id) 
+                print(this_sub_id)
+            else: continue
+    else:
+        filtering = (data['subType'] == type_name) & (data['Label'] == '1')
+        filter_data = np.array(data[filtering])    
+
+        for i in range(len(filter_data)):
+            #if i%10000 == 0: print(i)
+            this_sub_id = filter_data[i][2]
+            if this_sub_id in csv_data:
+                id_data.append(this_sub_id)
+                print(this_sub_id) 
+    id_data = np.array(id_data, dtype = str)
+
+    return id_data
 
 def hist_type_array(label_data, type_name, save_dir):
 	n, bins, patches = plt.hist(label_data, 
@@ -68,26 +82,22 @@ def main():
 	
     print(print_types)	
     type_name = input("- Enter the subtype number:")
-    type_name = types[int(type_name)-1]
+    type_name = types[int(type_name)]
 
     save_dir = save_dir + '/' + type_name
     if_not_make(save_dir)
 
     print('\n* Dicom dir: [ %s ], Desease type : [ %s ]'%(dcm_dir, type_name))
     print('---> Finding ID and Label index from [ %s ].'%(csv_file))	
-    id_data, label_data = make_type_array(csv_data, dcm_data, type_name)
+    id_data = make_type_array(csv_data, dcm_data, type_name)
     
     print('---> Saving numpy ID data.')
     np.save(save_dir + '/id_data', id_data)
     	
-    print('---> Saving numpy Label data.')
-    np.save(save_dir + '/label_data', label_data )
-    
-    print('---> Drawing [ %s ] type ratio histogram.'%(type_name))	
-    hist_type_array(label_data, type_name, save_dir)
-    
-    index, count = np.unique(label_data, return_counts = True)
-    summary(save_dir, [id_data, label_data], count)	
+    #print('---> Drawing [ %s ] type ratio histogram.'%(type_name))	
+    #hist_type_array(label_data, type_name, save_dir)
+    #index, count = np.unique(label_data, return_counts = True)
+    summary(save_dir, [id_data])
     
 if __name__=='__main__':
 	main()
