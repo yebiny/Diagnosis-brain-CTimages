@@ -7,7 +7,7 @@ import os
 from os import listdir, walk
 
 sys.path.append('../')
-from help_printing_mg import *
+from help_printing import *
 
 def file_to_data(data_path):
     file_data = listdir(data_path)
@@ -23,33 +23,37 @@ def make_type_array(data, file_data, type_name):
     
     id_data = []
     label_data = []
-    temp = []
+    
     if type_name == 'normal':
-        #type_filter = data['Label'] == '0'
-        filter_data = np.array(data['subID'])
-        filter_data 6 6 6 6  
-        filter_data 1 1 1 1 
-        filter_data id: a, b, c, d
+        sub_id_list = np.array(data['subID'])
+        # Delete same values 
+        sub_id_list = np.array(list(set(sub_id_list)))
         
-        for i in range(len(filter_data)):
-            data['Label'] ['subID']==filterdata[i]
-            list = [0,0,0,0,0,1]
-            list np.zero() 
+        for i in range(len(sub_id_list)):
+            this_sub_id = sub_id_list[i]
+
+            filtering = data['subID']==this_sub_id
+            this_sub_labels = data[filtering]['Label']
+            zero_count = list(this_sub_labels).count('0')
+            if zero_count == 6:
+                id_data.append(this_sub_id) 
+                print(this_sub_id)
+            else: continue   
                 
+    elif type_name == 'all':
+        for i in range(len(data)):            
+            if data['subID'][i] in file_data:
+                tmp = data[data['subID'] == data['subID'][i]]
                 
+                label = []
+                for idx in range(len(tmp)):
+                    tt = np.array(tmp['Label'])
+                    label.append(tt[idx])
                 
-                if filter_data[i][2] not in temp:
-                    temp.append(filter_data[i][2])
-                elif filter_data[i][2] == filter_data[i-1][2]:
-                    temp.append(filter_data[i][2])
-                    if len(temp) == 6:
-                        id_data.append(filter_data[i][2])
-                        label_data.append(filter_data[i][1])
-                        temp = []
-                else:
-                    temp = []
+                if data['subID'][i] not in id_data:
+                    id_data.append(data['subID'][i])
+                    label_data.append(label)
                 
-            print(i)
     else:
         type_filter = (data['subType'] == type_name) & (data['Label'] == '1')
         filter_data = np.array(data[type_filter])
@@ -57,7 +61,6 @@ def make_type_array(data, file_data, type_name):
             if filter_data[i][2] in file_data:
                 id_data.append(filter_data[i][2])
                 label_data.append(filter_data[i][1])
-            print(i)
     #print(filter_data.shape, filter_data)
     id_data = np.array(id_data, dtype = str)
     label_data = np.array(label_data, dtype = int)
@@ -79,7 +82,7 @@ def hist_type_array(label_data, type_name, save_dir):
 
 def main():
 #csv_file = '../1-Dataset/stage_2_train.csv'
-	csv_file = '../1-Dataset/stage_2_train.csv'
+	csv_file = '../1-Dataset/dcm_test.csv'
 	if_not_exit(csv_file)
 	csv_data = pd.read_csv(csv_file,sep = ",", dtype = 'unicode')
 	

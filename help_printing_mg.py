@@ -1,13 +1,14 @@
 import os, sys
 
-types = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural", "any", "normal"]
+types = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural", "any", "normal", "all"]
 print_types = '''* 1 : {type1}
 * 2 : {type2}
 * 3 : {type3}
 * 4 : {type4}
 * 5 : {type5}
 * 6 : {type6}
-* 7 : {type7}'''.format(type1=types[0],type2=types[1],type3=types[2],type4=types[3],type5=types[4],type6=types[5],type7=types[6])
+* 7 : {type7}
+* 8 : {type8}'''.format(type1=types[0],type2=types[1],type3=types[2],type4=types[3],type5=types[4],type6=types[5],type7=types[6],type8=types[7])
 
 def summary(save_dir, output_list, count=[]):
 	outputs = []
