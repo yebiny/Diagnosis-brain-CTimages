@@ -14,14 +14,14 @@ from  help_printing import *
 
 def npy_maker(id_np, load_dir):
     filelist = [f for f in glob.glob(load_dir + '/*.png', recursive = True)]
-    clahe = cv.createCLAHE(clipLimit=10.0, tileGridSize=(9, 9))
+    #clahe = cv.createCLAHE(clipLimit=10.0, tileGridSize=(9, 9))
     norm_imgs = []
     i = 0
     for file in filelist:
     #for i in range(len(img_np)):
         #img = img_np[i]
         img = cv.imread(file, cv.IMREAD_COLOR)
-        
+        img = cv.resize(img, dsize = (128, 128), interpolation = cv.INTER_AREA)
         #img_norm = cv.normalize(img, None, 0, 1, cv.NORM_MINMAX)
         img_norm = img / 255.0
         

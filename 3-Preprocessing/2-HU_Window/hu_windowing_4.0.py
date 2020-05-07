@@ -55,7 +55,7 @@ def get_window_img(hu_img, center, width):
     return window_img
 
 def hu_window_stream(img_dir, id_np, save_ori_dir, save_dural_dir, save_brain_dir):
-  
+    img_size = 128
     imgset = []
     for i in range(len(id_np)):
         dcm = pydicom.dcmread('%s/ID_%s.dcm'%(img_dir, id_np[i]))
@@ -75,11 +75,24 @@ def hu_window_stream(img_dir, id_np, save_ori_dir, save_dural_dir, save_brain_di
         window_img_subdural = get_window_img(hu_img_2, 80.0, 200.0)
         window_img_brain = get_window_img(hu_img_3, 40.0, 80.0)
         
-        plt.imsave(save_ori_dir + '/' + str(id_np[i]) + '.png', window_img_ori, cmap = 'bone')
-        plt.imsave(save_dural_dir + '/' + str(id_np[i]) + '.png', window_img_subdural, cmap = 'bone')
-        plt.imsave(save_brain_dir + '/' + str(id_np[i]) + '.png', window_img_brain, cmap = 'bone')
+        img_1 = cv.normalize(window_img_ori, None, 0, 255, cv.NORM_MINMAX)
+        img_resize_1 = cv.resize(img_1, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
         
-        imgset.append(cv.merge((window_img_ori, window_img_subdural, window_img_brain)))
+        img_2 = cv.normalize(window_img_subdural, None, 0, 255, cv.NORM_MINMAX)
+        img_resize_2 = cv.resize(img_2, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
+        
+        img_3 = cv.normalize(window_img_brain, None, 0, 255, cv.NORM_MINMAX)
+        img_resize_3 = cv.resize(img_3, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
+        
+        #temp_img = cv.merge((img_resize_1, img_resize_2, img_resize_3))
+        
+        #plt.imsave(save_ori_dir + '/' + str(id_np[i]) + '.png', window_img_ori, cmap = 'bone')
+        #plt.imsave(save_dural_dir + '/' + str(id_np[i]) + '.png', window_img_subdural, cmap = 'bone')
+        #plt.imsave(save_brain_dir + '/' + str(id_np[i]) + '.png', window_img_brain, cmap = 'bone')
+        #plt.imsave(save_set_dir + '/' + str(id_np[i]) + '.png', temp_img, cmap = 'bone')
+        
+        
+        imgset.append(cv.merge((img_resize_1, img_resize_2, img_resize_3)))
         print(i)
     
     return imgset#, hu_subdural, hu_brain, imgset
@@ -94,7 +107,9 @@ def main():
     img_dir = '../../1-Dataset/' + data_dir
     if_not_exit(img_dir)
     
-    if data_type == 7:
+    if data_type == 'normal':
+        np_dir = '../../2-EDA/res_%s/%s/'%(data_dir,data_type)
+    elif data_type == 'all':
         np_dir = '../../2-EDA/res_%s/%s/'%(data_dir,data_type)
     else:
         np_dir = '../1-Adjust_ratio/res_%s/%s/'%(data_dir,data_type)
@@ -104,8 +119,8 @@ def main():
     print('\n* Dataset: [ %s ] and [ %s ]'%(np_dir, img_dir))
     print('---> Loading numpy data ')
     
-    id_np = np.load(np_dir + '/id_data.npy')
-    label_np = np.load(np_dir + '/label_data.npy')
+    id_np = np.load(np_dir + '/id_data.npy', allow_pickle=True)
+    label_np = np.load(np_dir + '/label_data.npy', allow_pickle=True)
     
     print('---> Transform images... H.U and Windowing')
   
@@ -127,6 +142,9 @@ def main():
     
     save_brain_dir = save_dir + '/pngs/brain'
     if_not_make(save_brain_dir)
+    
+    #save_set_dir = save_dir + '/pngs/set'
+    #if_not_make(save_set_dir)
     
     imgset_np = hu_window_stream(img_dir, id_np, save_ori_dir, save_dural_dir, save_brain_dir)
     

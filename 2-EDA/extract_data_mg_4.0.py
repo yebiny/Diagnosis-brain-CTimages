@@ -7,7 +7,7 @@ import os
 from os import listdir, walk
 
 sys.path.append('../')
-from help_printing import *
+from help_printing_mg import *
 
 def file_to_data(data_path):
     file_data = listdir(data_path)
@@ -37,6 +37,7 @@ def make_type_array(data, file_data, type_name):
             zero_count = list(this_sub_labels).count('0')
             if zero_count == 6:
                 id_data.append(this_sub_id) 
+                label_data.append(0)
                 print(this_sub_id)
             else: continue   
                 
@@ -53,7 +54,7 @@ def make_type_array(data, file_data, type_name):
                 if data['subID'][i] not in id_data:
                     id_data.append(data['subID'][i])
                     label_data.append(label)
-                
+            print(i)    
     else:
         type_filter = (data['subType'] == type_name) & (data['Label'] == '1')
         filter_data = np.array(data[type_filter])
@@ -63,9 +64,12 @@ def make_type_array(data, file_data, type_name):
                 label_data.append(filter_data[i][1])
     #print(filter_data.shape, filter_data)
     id_data = np.array(id_data, dtype = str)
-    label_data = np.array(label_data, dtype = int)
-
-    return id_data, label_data
+    label_data = np.array(label_data)
+    
+    id_array = id_data[0:len(id_data) - 2]
+    label_array = id_data[0:len(label_data) - 2]
+    
+    return id_array, label_array
 
 def hist_type_array(label_data, type_name, save_dir):
 	n, bins, patches = plt.hist(label_data, 
@@ -82,7 +86,7 @@ def hist_type_array(label_data, type_name, save_dir):
 
 def main():
 #csv_file = '../1-Dataset/stage_2_train.csv'
-	csv_file = '../1-Dataset/dcm_test.csv'
+	csv_file = '../1-Dataset/stage_2_train.csv'
 	if_not_exit(csv_file)
 	csv_data = pd.read_csv(csv_file,sep = ",", dtype = 'unicode')
 	

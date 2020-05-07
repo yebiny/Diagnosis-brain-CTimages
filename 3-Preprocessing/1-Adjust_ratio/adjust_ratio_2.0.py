@@ -61,8 +61,8 @@ def main():
 	print('\n* Dataset: [ %s ]'%(np_dir))
 
 	print( '---> Loading numpy data.')
-	id_np = np.load(np_dir + '/id_data.npy')
-	label_np = np.load(np_dir + '/label_data.npy')
+	id_np = np.load(np_dir + '/id_data.npy', allow_pickle=True)
+	label_np = np.load(np_dir + '/label_data.npy', allow_pickle=True)
 	id_out, label_out = adjust_ratio(id_np, label_np, data_type)
 		
 	save_dir = 'res_' + data_dir
