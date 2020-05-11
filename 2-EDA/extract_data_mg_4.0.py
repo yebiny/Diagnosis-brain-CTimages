@@ -50,9 +50,10 @@ def make_type_array(data, file_data, type_name):
                 for idx in range(len(tmp)):
                     tt = np.array(tmp['Label'])
                     label.append(tt[idx])
-                
+                    
                 if data['subID'][i] not in id_data:
                     id_data.append(data['subID'][i])
+                    label = np.array(label)
                     label_data.append(label)
             print(i)    
     else:
