@@ -13,22 +13,51 @@ sys.path.append('../../')
 from  help_printing import *
 
 def norm_resize_stream(id_np, load_dir, img_size, save_dir):
-    filelist = [f for f in glob.glob(load_dir + '/*.png', recursive = True)]
-    norm_resize_imgs = []
-    i = 0
-    for file in filelist:
-    #for i in range(len(img_np)):
-        #img = img_np[i]
-        img = cv.imread(file, cv.IMREAD_GRAYSCALE)
-        img = cv.normalize(img.astype(np.uint8), None, 0, 255, cv.NORM_MINMAX)
-        img = cv.resize(img, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
-        cv.imwrite(save_dir + '/' + str(id_np[i]) + '.png', img)
-        norm_resize_imgs.append(img)
-        i=i+1
-    return norm_resize_imgs    
+    filelist_1 = [f for f in glob.glob(load_dir + '/ori/*.png', recursive = True)]
+    filelist_2 = [f for f in glob.glob(load_dir + '/dural/*.png', recursive = True)]
+    filelist_3 = [f for f in glob.glob(load_dir + '/brain/*.png', recursive = True)]
+       
+    ori = []
+    for file_1 in filelist_1:    
+        img_ori_1 = cv.imread(file_1, cv.IMREAD_GRAYSCALE)
+        img_1 = cv.normalize(img_ori_1, None, 0, 255, cv.NORM_MINMAX)
+        img_resize_1 = cv.resize(img_1, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
+        ori.append(img_resize_1)
+        
+    dural = []
+    for file_2 in filelist_2:
+        img_ori_2 = cv.imread(file_2, cv.IMREAD_GRAYSCALE)
+        img_2 = cv.normalize(img_ori_2, None, 0, 255, cv.NORM_MINMAX)
+        img_resize_2 = cv.resize(img_2, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
+        dural.append(img_resize_2)
+        
+    brain = []
+    for file_3 in filelist_3:
+        img_ori_3 = cv.imread(file_3, cv.IMREAD_GRAYSCALE)
+        img_3 = cv.normalize(img_ori_3, None, 0, 255, cv.NORM_MINMAX)
+        img_resize_3 = cv.resize(img_3, dsize = (img_size, img_size), interpolation = cv.INTER_LINEAR)
+        brain.append(img_resize_3)
+    
+    norm_resize_imgs = []    
+    for i in range(len(ori)):
+        temp_img = cv.merge((ori[i], dural[i], brain[i]))
+        plt.imsave(save_dir + '/' + str(id_np[i]) + '.png', temp_img, format='PNG', cmap='gist_ncar')
+        #cv.imwrite(save_dir + '/' + str(id_np[i]) + '.png', img_resize)
+        norm_resize_imgs.append(temp_img)
+    
+    plt.figure(figsize = (20, 10))
+    plt.subplot(1, 3, 1)
+    plt.hist(norm_resize_imgs[0][:,:,0].flatten(), bins = 80, color = 'r')
+    plt.subplot(1, 3, 2)
+    plt.hist(norm_resize_imgs[0][:,:,1].flatten(), bins = 80, color = 'g')
+    plt.subplot(1, 3, 3)
+    plt.hist(norm_resize_imgs[0][:,:,2].flatten(), bins = 80, color = 'b')
+    plt.savefig(save_dir + '/../hist.png', dpi = 300)
+    
+    return norm_resize_imgs
 
 def main():
-	img_size = 200
+	img_size = 256
 	
 	data_dir = str(input("- Enter the directory containing DICOM images : "))
 	print(print_types)

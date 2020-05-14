@@ -4,9 +4,9 @@ import os, sys
 import matplotlib.pyplot as plt
 
 sys.path.append('../../')
-from  help_printing import *
+from  help_printing_mg import *
 
-def adjust_ratio(id_np, label_np):
+def adjust_ratio(id_np, label_np, data_type):
 
     idx_1 = np.where(label_np == 1)[0]
     idx_0 = np.where(label_np == 0)[0]
@@ -17,7 +17,13 @@ def adjust_ratio(id_np, label_np):
     print( '---> Sampling the same number.')
     idx_1 = idx_1.tolist()
     idx_0 = idx_0.tolist()
-    idx_0 = random.sample(idx_0, len(idx_1))
+    
+    if data_type == str('normal'):
+        idx_0 = random.sample(idx_0, len(idx_0))
+        idx_1 = []
+    else:
+        idx_0 = []
+        idx_1 = random.sample(idx_1, len(idx_1))
     print( '---> Shuffling data order.')
     idx_list = idx_1 + idx_0
     np.random.shuffle(idx_list)
@@ -55,9 +61,9 @@ def main():
 	print('\n* Dataset: [ %s ]'%(np_dir))
 
 	print( '---> Loading numpy data.')
-	id_np = np.load(np_dir + '/id_data.npy')
-	label_np = np.load(np_dir + '/label_data.npy')
-	id_out, label_out = adjust_ratio(id_np, label_np)
+	id_np = np.load(np_dir + '/id_data.npy', allow_pickle=True)
+	label_np = np.load(np_dir + '/label_data.npy', allow_pickle=True)
+	id_out, label_out = adjust_ratio(id_np, label_np, data_type)
 		
 	save_dir = 'res_' + data_dir
 	if_not_make(save_dir)

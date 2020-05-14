@@ -1,71 +1,55 @@
-import glob, pylab, pandas as pd
-import pydicom, numpy as np
-from os import listdir
-from os.path import isfile, join
+# -*- coding: utf-8 -*-
+"""
+Created on Thu May  7 15:40:12 2020
+
+@author: MIT-DGMIF
+"""
+
+
+from PIL import Image
+import os, glob
+import numpy as np
+from sklearn.model_selection import train_test_split
 import cv2 as cv
 
-import matplotlib.pylab as plt
-import os,sys
-import seaborn as sns
-import scipy.ndimage
+base_dir = 'E:\\Dataset\\rsna-intracranial-hemorrhage-detection\\brain_diagnosis\\3-Preprocessing\\2-HU_Window\\res_stage_2_train\\all'
 
-sys.path.append('../../')
-from  help_printing import *
-
-def npy_maker(id_np, load_dir):
-    filelist = [f for f in glob.glob(load_dir + '/*.png', recursive = True)]
-    #clahe = cv.createCLAHE(clipLimit=10.0, tileGridSize=(9, 9))
-    norm_imgs = []
-    i = 0
-    for file in filelist:
-    #for i in range(len(img_np)):
-        #img = img_np[i]
-        img = cv.imread(file, cv.IMREAD_COLOR)
-        img = cv.resize(img, dsize = (128, 128), interpolation = cv.INTER_AREA)
-        #img_norm = cv.normalize(img, None, 0, 1, cv.NORM_MINMAX)
-        img_norm = img / 255.0
+img_data = np.load(base_dir + '\\img_data.npy', allow_pickle=True)
+label_data = np.load(base_dir + '\\label_data.npy', allow_pickle=True)
         
-        norm_imgs.append(img_norm)
-        i += 1
+
+X = np.array(img_data)
+
+Y = []
+error = []
+for i in range(len(label_data)):
+    t = np.array(label_data[i])
+    Y.append(t)
+    if len(t) != 6:
+        error.append(i)
+    print(i)
+
+Y = np.array(Y)
+Y = np.uint8(Y)
+
+
+
+
+
+# 학습 전용 데이터와 테스트 전용 데이터 구분 
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.33, random_state = 42)
+xy = (X_train, X_test, y_train, y_test)
+
+print('>>> data 저장중 ...')
+
+base_path = 'E:\\Dataset\\rsna-intracranial-hemorrhage-detection\\brain_diagnosis\\4-Model'
+
+dataset_path = os.path.join(base_path + '\\dataset')
+if not(os.path.exists(dataset_path)):
+    os.mkdir(dataset_path)
     
-    return norm_imgs
-
-def main():
-		
-	data_dir = str(input("- Enter the directory containing DICOM images : "))
-	print(print_types)
-	data_type = input("- Enter the subtype number : ")
-	data_type = types[int(data_type)-1]
-	
-	np_dir = '../3-Norm_Resize/res_%s/%s/'%(data_dir,data_type)
-	if_not_exit(np_dir)
-	
-	print('\n* Dataset from  [ %s ]'%(np_dir))
-	
-	print( '---> Loading numpy data' )
-	id_np = np.load(np_dir + '/id_data.npy')
-	label_np = np.load(np_dir + '/label_data.npy')
-	
-	img_dir = np_dir + '/pngs'
-	
-	save_dir = 'res_'+data_dir
-	if_not_make(save_dir)
-
-	save_dir = save_dir + '/' + data_type
-	if_not_make(save_dir)	
-
-	#save_img_dir = save_dir+'/pngs'	
-	#if_not_make(save_img_dir)
-	
-	
-	npy_imgs = npy_maker(id_np, img_dir)
-	print('---> Saving numpy data.')
-	re_img_np = np.array(npy_imgs)
-	
-	#np.save(save_dir + '/id_data', id_np)
-	#np.save(save_dir + '/label_data', label_np)
-	np.save(save_dir + '/img_data_color', re_img_np)
-	
-	summary(save_dir, [id_np, label_np, re_img_np])
-if __name__=='__main__':
-	main()
+np.save(dataset_path + '\\X_train.npy', X_train)
+np.save(dataset_path + '\\y_train.npy', y_train)
+np.save(dataset_path + '\\X_test.npy', X_test)
+np.save(dataset_path + '\\y_test.npy', y_test)
+print("ok,", len(Y))
