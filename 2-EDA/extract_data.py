@@ -26,8 +26,10 @@ def make_type_array(data, csv_data, type_name):
     
     if type_name == 'normal':
         sub_id_list = np.array(data['subID'])
+        print(sub_id_list, sub_id_list.shape)
         # Delete same values 
         sub_id_list = np.array(list(set(sub_id_list)))
+        print(sub_id_list, sub_id_list.shape)
         
         for i in range(len(sub_id_list)):
             this_sub_id = sub_id_list[i]
