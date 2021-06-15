@@ -1,3 +1,4 @@
+*result*
 *.tif
 *.csv
 *.log
@@ -10,4 +11,4 @@ __pycache__
 *.npy
 res_*
 1-Dataset/dcm_*
-results
+*h5
