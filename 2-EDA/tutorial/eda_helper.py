@@ -9,7 +9,7 @@ import os
 import seaborn as sns
 import scipy.ndimage
 
-data_path = '../1-Dataset/'
+data_path = '../../1-Dataset/'
 
 def see_dir_size(dir_path):
 	print('Total File sizes in '+dir_path)
@@ -20,11 +20,11 @@ def see_dir_size(dir_path):
 class EDA_helper():
 	def __init__(self, data_dir):
 		
-		self.path = data_path+data_dir+'/'
+		self.path = data_dir+'/'
 		self.list = [s for s in listdir(self.path) if isfile(join(self.path, s))]
 		self.size = len(self.list)
 		
-		self.csvf = pd.read_csv(data_path + data_dir+'.csv' )
+		self.csvf = pd.read_csv(data_dir+'.csv' )
 		self.dcms = [pydicom.dcmread(self.path+self.list[i]) for i in range(len(self.list))]
 		self.imgs = [self.dcms[i].pixel_array for i in range(self.size)]
 		
